@@ -1,0 +1,15 @@
+{
+  "data": {
+    "s_id": 1,
+    "name": "张三",
+    "department": {
+      "d_name": "技术一部",
+      "d_id": 1
+    },
+    "subject": [
+      1,
+      2,
+      3
+    ]
+  }
+}

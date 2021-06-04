@@ -1,0 +1,226 @@
+{
+  "result": true,
+  "error_code": "000000",
+  "error_msg": "请求成功",
+  "data": {
+    "modifiedUserId": 1,
+    "modifiedTime": 1621322383991,
+    "creationUserId": 1,
+    "creationTime": 1621318247764,
+    "id": 10264,
+    "accountId": 1,
+    "name": "嵌套json测试1",
+    "status": 0,
+    "dataflowUDFList": [],
+    "type": "drag",
+    "mode": "drag",
+    "description": "",
+    "displayTopology": "{\"nodes\":[{\"id\":\"8c7ca7a0\",\"x\":476,\"y\":192,\"type\":\"dataNode\",\"itemType\":\"Kafka\",\"parentType\":\"source\",\"content\":\"Kafka数据源\",\"style\":{},\"depth\":0},{\"id\":\"23fb582e\",\"x\":492,\"y\":349,\"type\":\"dataNode\",\"itemType\":\"ToKafka\",\"parentType\":\"output\",\"content\":\"输出到Kafka\",\"style\":{},\"depth\":0,\"sourceNodeType\":\"source\"}],\"edges\":[{\"source\":\"8c7ca7a0\",\"target\":\"23fb582e\",\"isMySqlNode\":false,\"id\":\"a6e53b83\",\"shape\":\"dragLine\",\"type\":\"line\",\"style\":{},\"startPoint\":{\"x\":476,\"y\":222.5,\"index\":0,\"anchorIndex\":0},\"endPoint\":{\"x\":492,\"y\":318.5,\"index\":1,\"anchorIndex\":1},\"depth\":0}]}",
+    "edges": "[{\"id\":\"a6e53b83\",\"type\":\"edge\",\"parentType\":\"edge\",\"itemType\":\"Edge\",\"source\":\"8c7ca7a0\",\"target\":\"23fb582e\",\"name\":\"edge\",\"config\":{\"itemType\":\"Edge\",\"name\":\"逻辑判断\",\"type\":\"common-conditions\",\"logicalConditionList\":[{\"valueType\":\"NOTSTRING\"}]}}]",
+    "confJson": {
+      "restartStrategies": {
+        "type": 0,
+        "restartAttempts": null,
+        "delayBetweenAttempts": null,
+        "delayBetweenAttemptsTimeUnit": null,
+        "failureRateInterval": null,
+        "failureRateIntervalTimeUnit": null,
+        "maxFailuresPerInterval": null
+      },
+      "checkPoint": {
+        "interval": 30,
+        "timeout": 10,
+        "mode": "exactly once"
+      },
+      "parallelism": 1
+    },
+    "tags": [],
+    "nodes": [
+      {
+        "modifiedUserId": 1,
+        "modifiedTime": 1621322383991,
+        "creationUserId": 1,
+        "creationTime": 1621322383991,
+        "accountId": null,
+        "name": "kafka_sink",
+        "nodeId": "23fb582e",
+        "parentNodeIds": [
+          "8c7ca7a0"
+        ],
+        "type": "sink-kafka",
+        "group": "sink",
+        "dataflowId": 10264,
+        "config": {
+          "itemType": "ToKafka",
+          "propertiesBootstrapServers": "localhost:9092",
+          "format": "json",
+          "inputTable": "gao_test0518",
+          "fields": [
+            {
+              "name": "data.s_id",
+              "type": "INT"
+            },
+            {
+              "name": "data.name",
+              "type": "STRING"
+            }
+          ],
+          "connector": "kafka-0.11",
+          "json.ignore-parse-errors": "true",
+          "name": "输出到Kafka",
+          "tableName": "gao_test_4",
+          "topic": "topic_gao-0518-nest-out",
+          "outputTimestamp": ""
+        }
+      },
+      {
+        "modifiedUserId": 1,
+        "modifiedTime": 1621322383991,
+        "creationUserId": 1,
+        "creationTime": 1621322383991,
+        "accountId": null,
+        "name": "kafka_source",
+        "nodeId": "8c7ca7a0",
+        "parentNodeIds": null,
+        "type": "source-kafka",
+        "group": "source",
+        "dataflowId": 10264,
+        "config": {
+          "itemType": "Kafka",
+          "propertiesBootstrapServers": "localhost:9092",
+          "propertiesGroupId": "123",
+          "format": "json",
+          "scanStartupMode": "earliest-offset",
+          "fields": [
+            {
+              "parent": "",
+              "name": "data",
+              "type": "ROW<s_id INT,name STRING,department ROW<d_name STRING,d_id INT>,subject ARRAY<INT>>"
+            },
+            {
+              "parent": "data",
+              "name": "data.s_id",
+              "type": "INT"
+            },
+            {
+              "parent": "data",
+              "name": "data.name",
+              "type": "STRING"
+            },
+            {
+              "parent": "data",
+              "name": "data.department",
+              "type": "ROW<d_name STRING,d_id INT>"
+            },
+            {
+              "parent": "data.department",
+              "name": "data.department.d_name",
+              "type": "STRING"
+            },
+            {
+              "parent": "data.department",
+              "name": "data.department.d_id",
+              "type": "INT"
+            },
+            {
+              "parent": "data",
+              "name": "data.subject",
+              "type": "ARRAY<INT>"
+            },
+            {
+              "parent": "data.subject",
+              "name": "data.subject[0]",
+              "type": "INT"
+            },
+            {
+              "parent": "data.subject",
+              "name": "data.subject[1]",
+              "type": "INT"
+            },
+            {
+              "parent": "data.subject",
+              "name": "data.subject[2]",
+              "type": "INT"
+            }
+          ],
+          "fieldsSelf": [
+            {
+              "type": "ROW<s_id INT,name STRING,department ROW<d_name STRING,d_id INT>,subject ARRAY<INT>>",
+              "name": "data",
+              "parent": "",
+              "childConditionList": [
+                {
+                  "name": "data.s_id",
+                  "parent": "data",
+                  "type": "INT",
+                  "id": "93fe35e6"
+                },
+                {
+                  "name": "data.name",
+                  "parent": "data",
+                  "type": "STRING",
+                  "id": "c884b2d8"
+                },
+                {
+                  "name": "data.department",
+                  "parent": "data",
+                  "type": "ROW<d_name STRING,d_id INT>",
+                  "childConditionList": [
+                    {
+                      "name": "data.department.d_name",
+                      "parent": "data.department",
+                      "type": "STRING",
+                      "id": "312480b7"
+                    },
+                    {
+                      "name": "data.department.d_id",
+                      "parent": "data.department",
+                      "type": "INT",
+                      "id": "17142c23"
+                    }
+                  ],
+                  "id": "22310871"
+                },
+                {
+                  "name": "data.subject",
+                  "parent": "data",
+                  "type": "ARRAY<INT>",
+                  "childConditionList": [
+                    {
+                      "name": "data.subject[0]",
+                      "parent": "data.subject",
+                      "type": "INT",
+                      "id": "151b3524"
+                    },
+                    {
+                      "name": "data.subject[1]",
+                      "parent": "data.subject",
+                      "type": "INT",
+                      "id": "a1aa1d82"
+                    },
+                    {
+                      "name": "data.subject[2]",
+                      "parent": "data.subject",
+                      "type": "INT",
+                      "id": "053eff53"
+                    }
+                  ],
+                  "id": "0424626c"
+                }
+              ]
+            }
+          ],
+          "watermark": {},
+          "connector": "kafka-0.11",
+          "json.ignore-parse-errors": "true",
+          "name": "Kafka数据源",
+          "tableName": "gao_test0518",
+          "topic": "topic_gao-0518-nest",
+          "scanStartupTimestampMillis": null,
+          "propertiesMaxPollRecords": "5000"
+        }
+      }
+    ],
+    "savePointPath": null
+  }
+}

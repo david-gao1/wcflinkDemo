@@ -1,4 +1,4 @@
-package com.gao.trans.sql.basic;
+package com.gao.flink.sql.basic;
 
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;

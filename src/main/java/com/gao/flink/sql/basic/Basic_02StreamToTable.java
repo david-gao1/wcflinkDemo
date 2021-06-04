@@ -1,15 +1,11 @@
-package com.gao.trans.sql.basic;
+package com.gao.flink.sql.basic;
 
-import org.apache.flink.api.java.operators.DataSource;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
-
-import java.util.ArrayList;
 
 import static org.apache.flink.table.api.Expressions.$;
 
@@ -34,6 +30,7 @@ public class Basic_02StreamToTable {
 
         //第一种：使用sql
         // 将DataStream转换为view视图
+        //todo：表名+数据源+表的结构
         tableEnv.createTemporaryView("myTable", stream, $("id"), $("name"));
         tableEnv.sqlQuery("select * from myTable where id > 1").execute().print();
 
