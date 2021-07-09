@@ -4,7 +4,7 @@ import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.types.DataType;
 
 /**
- * @Description TODO
+ * @Description flink的类
  * @Author lianggao
  * @Date 2021/5/17 10:45 上午
  * @Version 1.0

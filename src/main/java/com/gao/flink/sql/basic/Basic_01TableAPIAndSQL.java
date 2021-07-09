@@ -1,9 +1,6 @@
 package com.gao.flink.sql.basic;
 
-import org.apache.flink.table.api.DataTypes;
-import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.Table;
-import org.apache.flink.table.api.TableEnvironment;
+import org.apache.flink.table.api.*;
 import org.apache.flink.table.types.DataType;
 import org.apache.flink.table.types.logical.LogicalType;
 
@@ -15,16 +12,11 @@ import org.apache.flink.table.types.logical.LogicalType;
  */
 public class Basic_01TableAPIAndSQL {
     public static void main(String[] args) {
-        //1、获取TableEnvironment
+        //1、useBlinkPlanner 创建env 不能进行转换
         EnvironmentSettings env = EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         TableEnvironment tableEnv = TableEnvironment.create(env);
 
-        //2、创建
-        // 创建输入表
-        //推荐使用executeSql
-        DataType array = DataTypes.ARRAY(DataTypes.ROW());
-        //LogicalType logicalType = array.getLogicalType();
-        //String s = logicalType.toString();
+        //2、executeSql 创建输入表
         tableEnv.executeSql("" +
                 "create table myTable(\n" +
                 "id VARCHAR,\n" +
@@ -37,30 +29,25 @@ public class Basic_01TableAPIAndSQL {
                 ")");
 
         //3、查询并输出
-        //3.1、使用Table API
-//        tableEnv.from("myTable")
-//                .select($("id"), $("name"))
-//                .filter($("id").isGreater(1))
-//                .execute()
-//                .print();
         //3.2、使用SQL  打印到输出台上
-        Table resultTable = tableEnv.sqlQuery("select * from myTable ");
-        resultTable.execute().print();
+        Table table = tableEnv.sqlQuery("select * from myTable ");
+        ///提交job并打印出来 tableResult包含了执行的结果
+        //execute 执行并返回结果
+        TableResult tableResult = table.execute();
+        tableResult.print();
 
 
-//todo：get 将数据输出到新的表中，并以一定的格式进行存储（比如是csv类型的数据格式）
-
-//        创建输出表
-//        sTableEnv.executeSql("" +
-//                "create table newTable(\n" +
-//                "id int,\n" +
-//                "name string\n" +
-//                ") with (\n" +
-//                "'connector.type' = 'filesystem',\n" +
-//                "'connector.path' = '/Users/lianggao/MyWorkSpace/006data',\n" +
-//                "'format.type' = 'csv'\n" +
-//                ")");
-//        //输出结果到表newTable中
-//        result.executeInsert("newTable");
+        //创建输出表
+        tableEnv.executeSql("" +
+                "create table newTable(\n" +
+                "id int,\n" +
+                "name string\n" +
+                ") with (\n" +
+                "'connector.type' = 'filesystem',\n" +
+                "'connector.path' = '/Users/lianggao/MyWorkSpace/006data',\n" +
+                "'format.type' = 'csv'\n" +
+                ")");
+        //输出结果到表newTable中
+        table.executeInsert("newTable");
     }
 }
