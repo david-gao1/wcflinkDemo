@@ -50,7 +50,7 @@ public class RunOther {
         //FileReader fr = new FileReader("/Users/lianggao/MyWorkSpace/001project/wcflinkDemo/src/main/resources/001basic.SQL");
         //FileReader fr = new FileReader("/Users/lianggao/MyWorkSpace/001project/wcflinkDemo/src/main/resources/002window.sql");
         //FileReader fr = new FileReader("/Users/lianggao/MyWorkSpace/001project/wcflinkDemo/src/main/resources/003windowMutiSql.sql");
-        //FileReader fr = new FileReader("/Users/lianggao/MyWorkSpace/001project/wcflinkDemo/src/main/resources/004kafkajoinSql-fault.sql");
+        //FileReader fr = new FileReader("/Users/lianggao/MyWorkSpace/001project/wcflinkDemo/src/main/resources/0042kafkajoin.sql");
         //FileReader fr = new FileReader("/Users/lianggao/MyWorkSpace/001project/wcflinkDemo/src/main/resources/0041kafkajoin.sql");
         FileReader fr = new FileReader("/Users/lianggao/MyWorkSpace/001project/wcflinkDemo/src/main/resources/005UDF.sql");
         BufferedReader br = new BufferedReader(fr);

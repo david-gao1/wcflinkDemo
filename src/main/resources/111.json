@@ -1,0 +1,23 @@
+{
+  "modifiedUserId": 2,
+  "modifiedTime": 1626838688000,
+  "creationUserId": 2,
+  "creationTime": 1626404251000,
+  "accountId": 110,
+  "name": "SQL",
+  "jarJsonConfig": null,
+  "status": 0,
+  "dataflowUDFList": [],
+  "type": "sql",
+  "mode": "sql",
+  "description": "",
+  "displayTopology": null,
+  "edges": null,
+  "confJson": null,
+  "tags": [],
+  "nodes": [],
+  "savePointPath": "hdfs://hadoop1:9000/flink/savepoints/savepoint-d94f96-06d45fc5d2f4",
+  "flinkJobId": null,
+  "checkPointPath": "",
+  "sqlStatements": "CREATE TABLE `inputtable` (\n  `id`  BIGINT NOT NULL,\n  `name1`  STRING NOT NULL,\n  `num_dou`  DOUBLE NOT NULL,\n  `num_float`  FLOAT NOT NULL,\n  `num_int`  BIGINT NOT NULL,\n  `stringtime`  STRING NOT NULL,\n  `cloud_wise_proc_time` AS `proctime`()\n) WITH (\n  'connector' = 'kafka-0.10',\n  'topic' = 'source_sql',\n  'properties.bootstrap.servers' = '10.0.9.43:9092',\n  'properties.max.poll.records' = '5000',\n  'properties.group.id' = 'group1',\n  'format' = 'json',\n  'json.ignore-parse-errors' = 'true',\n  'scan.startup.mode' = 'latest-offset'\n);\n\nCREATE TABLE `outputtable` (\n  `id`  BIGINT NOT NULL,\n  `name1`  STRING,\n  `num_dou`  DOUBLE NOT NULL,\n  `num_float`  FLOAT NOT NULL,\n  `num_int`  BIGINT NOT NULL,\n  `stringtime`  STRING NOT NULL,\n  `cloud_wise_proc_time`  TIMESTAMP(3)\n) WITH (\n  'connector' = 'kafka-0.10',\n  'topic' = 'sink_sql',\n  'properties.bootstrap.servers' = '10.0.9.43:9092',\n  'properties.acks' = '1',\n  'properties.retries' = '3',\n  'properties.batch.size' = '16348',\n  'properties.linger.ms' = '0',\n  'properties.buffer.memory' = '33554432',\n  'json.ignore-parse-errors' = 'true',\n  'format' = 'json'\n);\n\nINSERT INTO `outputtable`\n(SELECT *\nFROM `inputtable`);"
+}

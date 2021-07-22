@@ -63,6 +63,7 @@ public class RunPureSQLWithFlink {
         Map<String, List<String>> sqlTypeAndSqlStatementMap = new HashMap<>();
         List<String> ddlList = new ArrayList<>();
         List<String> dmlList = new ArrayList<>();
+        ArrayList<String> selectList = new ArrayList<>();
         List<String> ddlTypes = Arrays.asList("CREATE", "DROP", "ALTER");
         List<String> dmlTypes = Arrays.asList("INSERT", "UPDATE", "DELETE");
         for (String sqlStatement : sqlStatements) {
@@ -75,11 +76,12 @@ public class RunPureSQLWithFlink {
             } else if (dmlTypes.contains(sqlType.toUpperCase())) {
                 dmlList.add(sqlStatement);
             } else {
-                ddlList.add(sqlStatement);
+                selectList.add(sqlStatement);
             }
         }
         sqlTypeAndSqlStatementMap.put("DDL", ddlList);
         sqlTypeAndSqlStatementMap.put("DML", dmlList);
+        sqlTypeAndSqlStatementMap.put("SELECT",selectList);
         return sqlTypeAndSqlStatementMap;
     }
 
@@ -93,9 +95,11 @@ public class RunPureSQLWithFlink {
     public static String executeSQLs(Map<String, List<String>> sqlTypeAndSqlStatementMap) {
         //streamTableEnvironment.createTemporarySystemFunction("substrtest", new SubstringFuncation());
         //streamTableEnvironment.executeSql("create temporary function substrtest as  `com.gao.flink.datalake.SubstringFuncation`");
-        streamTableEnvironment.executeSql(
-                String.format("create temporary function substrtest as '%s'",
-                        "com.gao.flink.datalake.SubstringFuncation"));
+        //streamTableEnvironment.createTemporarySystemFunction("substrtest", SubstringFuncation.class);
+        streamTableEnvironment.createTemporarySystemFunction("SubstringFunction", SubstringFunction.class);
+//        streamTableEnvironment.executeSql(
+//                String.format("create temporary function substrtest as '%s'",
+//                        "com.gao.flink.datalake.SubstringFunction"));
         String[] strings = streamTableEnvironment.listUserDefinedFunctions();
         System.out.println("[listUserDefinedFunctions] is{}" + Arrays.toString(strings));
         StatementSet statementSet = streamTableEnvironment.createStatementSet();
@@ -106,6 +110,10 @@ public class RunPureSQLWithFlink {
         for (String dmlStatement : sqlTypeAndSqlStatementMap.get("DML")) {
             System.out.println("[executeSQLs] dmlStatement is {}" + dmlStatement);
             statementSet.addInsertSql(dmlStatement);
+        }
+        for (String select : sqlTypeAndSqlStatementMap.get("SELECT")) {
+            System.out.println("[executeSQLs] SELECTStatement is {}" + select);
+            streamTableEnvironment.sqlQuery(select);
         }
         TableResult executeResult = statementSet.execute();
         String jobId = executeResult.getJobClient().get().getJobID().toString();

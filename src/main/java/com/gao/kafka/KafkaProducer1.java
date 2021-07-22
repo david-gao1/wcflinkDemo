@@ -22,6 +22,8 @@ public class KafkaProducer1 {
         //参数配置：
         Properties props = new Properties();
         //server列表
+        //props.put("bootstrap.servers", "localhost:9092");
+        //10.0.12.159:18108,10.0.12.160:18108,10.0.12.161:18108
         props.put("bootstrap.servers", "localhost:9092");
         //key，value支持序列化
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
@@ -39,7 +41,7 @@ public class KafkaProducer1 {
             System.out.println(jsonString);
             //发送数据
             kafkaProducer.send(infos);
-            Thread.sleep(5000);
+            Thread.sleep(3000);
         }
 
     }
@@ -68,9 +70,33 @@ public class KafkaProducer1 {
     public static JSONObject getid() {
         JSONObject stuff = new JSONObject();
         int i = new Random().nextInt();
-        stuff.put("d_id", "12345678");
+        String id = "你" + i;
+        stuff.put("id", null);
+        int age = (int) (Math.random() * 10) + 1;
+        stuff.put("age", age);
         return stuff;
     }
+
+    //  `ID`  INTEGER,
+    //  `BUSINESS_TYPE`  STRING,
+    //  `OCCUR_DATE`  STRING,
+    //  `CUSTOMER_ID`  INTEGER,
+    //  `BUSINESS_TYPE`  INTEGER,
+    //  `CREATE_DATE`  DATE,
+    //  `UPDATE_DATE`  DATE
+    public static JSONObject getCDC() {
+        JSONObject stuff = new JSONObject();
+        int age = (int) (Math.random() * 10) + 1;
+        stuff.put("ID", age);
+        stuff.put("OCCUR_DATE", new Date());
+        stuff.put("CUSTOMER_ID", (int) (Math.random() * 10) + 1 + (int) (Math.random() * 10) + 1);
+        stuff.put("BUSINESS_TYPE", (int) (Math.random() * 10) + 1 + (int) (Math.random() * 10) + 2);
+        stuff.put("BUSINESS_SUM", (int) (Math.random() * 10) + 1 + (int) (Math.random() * 10) + 2);
+        stuff.put("CREATE_DATE", new Date());
+        stuff.put("UPDATE_DATE", new Date());
+        return stuff;
+    }
+
 
     /**
      * 嵌套格式的对象json

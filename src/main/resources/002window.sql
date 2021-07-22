@@ -28,7 +28,8 @@ with
 
 
 
-insert into gao_test_052203121 select  sum(`d_id`) as `sum_d_id` ,`d_id` as `d_id`,
+insert into gao_test_052203121
+select  sum(`d_id`) as `sum_d_id` ,`d_id` as `d_id`,
 TUMBLE_START(cloud_wise_proc_time,  INTERVAL '10' SECOND) as start_time,
  TUMBLE_END(cloud_wise_proc_time,  INTERVAL '10' SECOND) as end_time
  from gao_test_052203  group by TUMBLE(cloud_wise_proc_time,  INTERVAL '10' SECOND) ,`d_id`;

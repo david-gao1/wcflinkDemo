@@ -14,7 +14,6 @@ public class JsonNodeObjectUtils {
         List<String> basicDataTypes =
                 Arrays.asList("STRING", "BOOLEAN", "INTEGER", "BIGINT",
                         "FLOAT", "DOUBLE", "DATE", "TIME", "TIMESTAMP");
-
         boolean contains = basicDataTypes.contains("string");
         System.out.println(contains);
 

@@ -1,0 +1,54 @@
+{
+  "modifiedUserId": 2,
+  "modifiedTime": 1626839123000,
+  "creationUserId": 2,
+  "creationTime": 1626250196000,
+  "accountId": 110,
+  "name": "kafka双流innerjoin",
+  "jarJsonConfig": null,
+  "status": 3,
+  "dataflowUDFList": [],
+  "type": "sql",
+  "mode": "sql",
+  "description": "",
+  "displayTopology": null,
+  "edges": null,
+  "confJson": {
+    "restartStrategies": {
+      "type": 0,
+      "restartAttempts": null,
+      "delayBetweenAttempts": null,
+      "delayBetweenAttemptsTimeUnit": null,
+      "failureRateInterval": null,
+      "failureRateIntervalTimeUnit": null,
+      "maxFailuresPerInterval": null
+    },
+    "checkPoint": {
+      "interval": 30,
+      "timeout": 10,
+      "mode": "exactly once"
+    },
+    "parallelism": 1,
+    "idleStateRetentionTime": 10,
+    "jobManagerJVM": null,
+    "taskManagerJVM": null,
+    "jobManagerCpus": null,
+    "slotsPerTaskManger": null,
+    "flinkConfExtraParam": null
+  },
+  "tags": [
+    {
+      "modifiedUserId": null,
+      "modifiedTime": null,
+      "creationUserId": null,
+      "creationTime": null,
+      "accountId": null,
+      "name": "achilles"
+    }
+  ],
+  "nodes": [],
+  "savePointPath": "hdfs://hadoop1:9000/flink/savepoints/savepoint-e9f067-d55292dc9640",
+  "flinkJobId": null,
+  "checkPointPath": "",
+  "sqlStatements": "CREATE TABLE `t_order1` (\n  `order_id`  BIGINT,\n  `msg_type`  VARCHAR,\n  `order_time`  BIGINT\n) WITH (\n  'connector' = 'kafka-0.11',\n  'topic' = 'source_order',\n  'properties.bootstrap.servers' = '10.0.9.44:18108,10.0.9.45:18108',\n  'properties.max.poll.records' = '5000',\n  'properties.group.id' = 'frist',\n  'format' = 'json',\n  'json.ignore-parse-errors' = 'true',\n  'scan.startup.mode' = 'latest-offset'\n);\n\nCREATE TABLE `t_product1` (\n  `num_int`  BIGINT,\n  `id`  BIGINT,\n  `name1`  VARCHAR\n) WITH (\n  'connector' = 'kafka-0.11',\n  'topic' = 'source_info',\n  'properties.bootstrap.servers' = '10.0.9.44:18108,10.0.9.45:18108',\n  'properties.max.poll.records' = '5000',\n  'properties.group.id' = 'frist',\n  'format' = 'json',\n  'json.ignore-parse-errors' = 'true',\n  'scan.startup.mode' = 'latest-offset'\n);\n\nCREATE TABLE `order_detail1` (\n  `order_id`  BIGINT,\n  `msg_type`  VARCHAR,\n  `order_time`  BIGINT,\n  `num_int`  BIGINT\n) WITH (\n  'connector' = 'kafka-0.11',\n  'topic' = 'sink_info',\n  'properties.bootstrap.servers' = '10.0.9.44:18108,10.0.9.45:18108',\n  'properties.max.poll.records' = '5000',\n  'properties.group.id' = 'frist',\n  'format' = 'json',\n  'json.ignore-parse-errors' = 'true',\n  'scan.startup.mode' = 'latest-offset'\n);\n\nINSERT INTO `order_detail1`\n(SELECT `a`.`order_id`, `a`.`msg_type`, `a`.`order_time`, `b`.`num_int`\nFROM `t_order1` AS `a`\nINNER JOIN `t_product1` AS `b` ON `a`.`order_id` = `b`.`num_int`\nWHERE `a`.`order_id` IS NOT NULL);"
+}

@@ -12,6 +12,13 @@ import org.apache.flink.table.functions.ScalarFunction;
  */
 
 public class SubstringFuncation extends ScalarFunction {
+
+    private Integer begin;
+    private Integer end;
+
+    public SubstringFuncation() {
+    }
+
     /**
      * @param str   string类型的字段
      * @param begin 开始截取的位置

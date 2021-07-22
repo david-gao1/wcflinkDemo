@@ -12,17 +12,6 @@ import java.util.regex.Pattern;
  */
 public class StringUtils111 {
     public static void main(String[] args) {
-        //regex1();
-
-        //System.out.println("`job[]`");
-        //System.out.println(remove());
-
-        //String s = addSpecialAvoidKeyWords("nihao[1]");
-        //System.out.println(s);
-
-        //String s1 = "`1212`";
-
-        //System.out.println(s1.startsWith("`")&&s1.endsWith("`"));
         int random = (int)(Math.random()*100);
         System.out.println(random);
 

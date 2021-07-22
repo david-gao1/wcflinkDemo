@@ -1,5 +1,5 @@
 CREATE TABLE `gao_test_052203121` (
-  `id`  INTEGER NOT NULL
+  `id`  BIGINT NOT NULL
 ) WITH (
   'connector' = 'kafka-0.11',
   'topic' = 'topic_gao-out',
@@ -28,5 +28,5 @@ CREATE TABLE `gao_test_052203` (
 );
 
 
-SELECT substrtest(d_id,1,3) AS `id` FROM `gao_test_052203`;
+select `substringfunction`(d_id,1,3) AS id from gao_test_052203
 
