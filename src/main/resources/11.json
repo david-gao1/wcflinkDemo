@@ -1,0 +1,185 @@
+{
+    "nodes": [
+    {
+      "modifiedUserId": 1,
+      "modifiedTime": 1628062283986,
+      "creationUserId": 1,
+      "creationTime": 1628062283986,
+      "accountId": null,
+      "name": "polymerization",
+      "parentNodeIds": [
+        "eaa8b0d7"
+      ],
+      "type": "aggregate",
+      "group": "transform",
+      "dataflowId": 10402,
+      "config": {
+        "itemType": "Polymerization",
+        "name": "聚合算子",
+        "timeType": "roll",
+        "windowNode": {
+          "windowSize": 30,
+          "sizeUnit": "SECOND",
+          "windowType": "TIME_TUMBLE"
+        },
+        "outputTable": "gao_count",
+        "outputTimestamp": "timeStamp111",
+        "aggregateNodeList": [
+          {
+            "id": "ef735944",
+            "aggregateType": "count",
+            "inputName": "id",
+            "inputType": "BIGINT",
+            "outputName": "id_count",
+            "outputType": "BIGINT"
+          }
+        ],
+        "groupNodeList": [],
+        "fields": [
+          {
+            "id": "ef735944",
+            "name": "id_count",
+            "type": "BIGINT"
+          }
+        ],
+        "inputTable": "gao_source"
+      },
+      "nodeId": "49a98a38"
+    },
+    {
+      "modifiedUserId": 1,
+      "modifiedTime": 1628062283986,
+      "creationUserId": 1,
+      "creationTime": 1628062283986,
+      "accountId": null,
+      "name": "kafka_source",
+      "parentNodeIds": null,
+      "type": "source-kafka",
+      "group": "source",
+      "dataflowId": 10402,
+      "config": {
+        "itemType": "Kafka",
+        "name": "Kafka数据源",
+        "tableName": "gao_source",
+        "topic": "source-1",
+        "propertiesBootstrapServers": "localhost:9092",
+        "propertiesGroupId": "",
+        "format": "json",
+        "scanStartupMode": "latest-offset",
+        "propertiesMaxPollRecords": "5000",
+        "fields": [
+          {
+            "type": "BIGINT",
+            "name": "id",
+            "id": "13230cc5"
+          }
+        ],
+        "fieldsSelf": [
+          {
+            "type": "BIGINT",
+            "name": "id"
+          }
+        ],
+        "watermark": {},
+        "scanStartupTimestampMillis": null,
+        "connector": "kafka-0.11",
+        "json.ignore-parse-errors": "true"
+      },
+      "nodeId": "eaa8b0d7"
+    },
+    {
+      "modifiedUserId": 1,
+      "modifiedTime": 1628062283986,
+      "creationUserId": 1,
+      "creationTime": 1628062283986,
+      "accountId": null,
+      "name": "kafka_sink",
+      "parentNodeIds": [
+        "49a98a38"
+      ],
+      "type": "sink-kafka",
+      "group": "sink",
+      "dataflowId": 10402,
+      "config": {
+        "itemType": "ToKafka",
+        "propertiesBootstrapServers": "localhost:9092",
+        "format": "json",
+        "inputTable": "gao_count",
+        "fields": [
+          {
+            "name": "id_count",
+            "type": "BIGINT"
+          }
+        ],
+        "connector": "kafka-0.11",
+        "json.ignore-parse-errors": "true",
+        "name": "输出到Kafka",
+        "tableName": "gao_sink",
+        "topic": "source-1",
+        "outputTimestamp": "timeStamp"
+      },
+      "nodeId": "598e4ff4"
+    },
+    {
+      "modifiedUserId": 1,
+      "modifiedTime": 1628062283986,
+      "creationUserId": 1,
+      "creationTime": 1628062283986,
+      "accountId": null,
+      "name": "polymerization",
+      "parentNodeIds": [
+        "eaa8b0d7"
+      ],
+      "type": "aggregate",
+      "group": "transform",
+      "dataflowId": 10402,
+      "config": {
+        "itemType": "Polymerization",
+        "name": "聚合算子",
+        "timeType": "roll",
+        "windowNode": {
+          "windowSize": 30,
+          "sizeUnit": "SECOND",
+          "windowType": "TIME_TUMBLE"
+        },
+        "outputTable": "gao_count",
+        "outputTimestamp": "timeStamp111",
+        "aggregateNodeList": [
+          {
+            "id": "ef735944",
+            "aggregateType": "count",
+            "inputName": "id",
+            "inputType": "BIGINT",
+            "outputName": "id_count",
+            "outputType": "BIGINT"
+          }
+        ],
+        "groupNodeList": [],
+        "fields": [
+          {
+            "id": "ef735944",
+            "name": "id_count",
+            "type": "BIGINT"
+          }
+        ],
+        "inputTable": "gao_source",
+        "logicalTableConditionList": [
+          {
+            "source": "eaa8b0d7",
+            "inputTable": "gao_source",
+            "logicalConditionList": [
+              {
+                "fieldName": "id",
+                "opType": "GREATER",
+                "value": "4",
+                "valueType": "STRING"
+              }
+            ]
+          }
+        ]
+      },
+      "nodeId": "49a98a38"
+    }
+  ],
+  "id": "10402"
+}

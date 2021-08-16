@@ -11,7 +11,7 @@ WITH ('connector'='kafka-0.11',
 
 
 
-create table gao_test_052203 ( `id` ,INTEGER NOT NULL,  cloud_wise_proc_time as  proctime() )
+create table gao_test_052203 ( `id` INTEGER NOT NULL,  cloud_wise_proc_time as  proctime() )
 WITH ('connector'='kafka-0.11',
 'topic'='topic_gao-in',
 'properties.bootstrap.servers'= 'localhost:9092',

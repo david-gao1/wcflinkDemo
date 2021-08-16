@@ -31,11 +31,11 @@ public class KafkaProducer1 {
 
         //创建生产者
         KafkaProducer<String, String> kafkaProducer = new KafkaProducer<>(props);
-        String topic1 = "kafka_source1";
+        String topic1 = "source-1";
 
         while (true) {
             //将对象转为json数据
-            String jsonString = JSONObject.toJSONString(getid(), SerializerFeature.WriteMapNullValue);
+            String jsonString = JSONObject.toJSONString(getidAndName(), SerializerFeature.WriteMapNullValue);
             //生成数据
             ProducerRecord<String, String> infos = new ProducerRecord<String, String>(topic1, jsonString);
             System.out.println(jsonString);
@@ -67,13 +67,11 @@ public class KafkaProducer1 {
     /**
      * 嵌套格式的对象json
      */
-    public static JSONObject getid() {
+    public static JSONObject getidAndName() {
         JSONObject stuff = new JSONObject();
-        int i = new Random().nextInt();
-        String id = "你" + i;
-        stuff.put("id", null);
         int age = (int) (Math.random() * 10) + 1;
-        stuff.put("age", age);
+        stuff.put("id",4);
+        stuff.put("name","张三");
         return stuff;
     }
 

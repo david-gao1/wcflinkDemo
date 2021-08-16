@@ -1,11 +1,8 @@
 package com.gao.flink.datastream;
 
-import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.core.execution.JobClient;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
-import org.apache.flink.streaming.api.environment.LocalStreamEnvironment;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 /**
@@ -33,7 +30,6 @@ public class EnvUtils {
 //        //String host, int port, String... jarFiles
 
     }
-
 
     /**
      * 002:通过运行环境的不同的方法获取流数据
@@ -91,7 +87,6 @@ public class EnvUtils {
         StreamExecutionEnvironment dataStreamEnv = getDataStreamEnv();
 
         final JobClient jobClient = dataStreamEnv.executeAsync();
-
 
         /**
          * 此方法可以观察到flink job的执行情况

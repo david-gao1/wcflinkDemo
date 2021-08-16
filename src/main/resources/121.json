@@ -1,0 +1,16 @@
+{
+  "ipAndPort": "localhost:9092",
+  "databaseName": "flinktest",
+  "inputTable": "department",
+  "userName": "admin",
+  "password": "11111111",
+  "outputTable": "test_gao_0519_02",
+  "format": "json",
+  "fields": [
+    {
+      "name": "id",
+      "type": "STRING",
+      "nullable": false
+    }
+  ]
+}
