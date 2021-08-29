@@ -32,18 +32,38 @@ public class KafkaProducer1 {
         //创建生产者
         KafkaProducer<String, String> kafkaProducer = new KafkaProducer<>(props);
         String topic1 = "source-1";
-
+        int age = 100;
         while (true) {
+            JSONObject stuff = new JSONObject();
+            stuff.put("id", age);
+            stuff.put("deptname", "bigdata");
+            stuff.put("emp_id", age + 1);
+
             //将对象转为json数据
-            String jsonString = JSONObject.toJSONString(getidAndName(), SerializerFeature.WriteMapNullValue);
+            String jsonString = JSONObject.toJSONString(stuff, SerializerFeature.WriteMapNullValue);
             //生成数据
             ProducerRecord<String, String> infos = new ProducerRecord<String, String>(topic1, jsonString);
             System.out.println(jsonString);
             //发送数据
             kafkaProducer.send(infos);
-            Thread.sleep(3000);
+            Thread.sleep(5000);
+            age++;
         }
 
+    }
+
+
+    /**
+     * @return
+     */
+    public static JSONObject getPgObejct() {
+        JSONObject stuff = new JSONObject();
+        int age = (int) (Math.random() * 10) + 1;
+        stuff.put("id", age);
+        stuff.put("sku_id", "sku_002");
+        stuff.put("total_amount", "600");
+        stuff.put("create_time", "2020-06-11 13:00:00");
+        return stuff;
     }
 
     /**
@@ -70,10 +90,13 @@ public class KafkaProducer1 {
     public static JSONObject getidAndName() {
         JSONObject stuff = new JSONObject();
         int age = (int) (Math.random() * 10) + 1;
-        stuff.put("id",4);
-        stuff.put("name","张三");
+        stuff.put("id", 4);
+        stuff.put("sku_id", "sku_002");
+        stuff.put("total_amount", "600");
+        stuff.put("create_time", "2020-06-11 13:00:00");
         return stuff;
     }
+
 
     //  `ID`  INTEGER,
     //  `BUSINESS_TYPE`  STRING,

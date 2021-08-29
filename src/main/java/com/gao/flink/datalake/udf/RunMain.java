@@ -22,7 +22,7 @@ public class RunMain {
     public static void main(String[] args) {
         streamTableEnvironment.executeSql(
                 String.format("create temporary function subStrTest as '%s'",
-                        "com.gao.flink.datalake.SubstringFuncation"));
+                        "com.gao.flink.datalake.udf.SubstringFuncation"));
         String[] strings = streamTableEnvironment.listUserDefinedFunctions();
         System.out.println("[listUserDefinedFunctions] is{}" + Arrays.toString(strings));
 

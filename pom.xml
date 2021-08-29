@@ -169,6 +169,20 @@
             <version>RELEASE</version>
             <scope>compile</scope>
         </dependency>
+
+        <!--使用catalog进行测试-->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.2.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ru.yandex.clickhouse</groupId>
+            <artifactId>clickhouse-jdbc</artifactId>
+            <version>0.2.4</version>
+        </dependency>
+
     </dependencies>
 
 

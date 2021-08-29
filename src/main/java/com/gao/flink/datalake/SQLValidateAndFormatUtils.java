@@ -12,12 +12,11 @@ import org.apache.calcite.sql.parser.SqlParser;
 import org.apache.flink.sql.parser.impl.FlinkSqlParserImpl;
 import org.apache.flink.sql.parser.validate.FlinkSqlConformance;
 
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.gao.flink.datalake.RunOther.getPureSqlStatements;
+import static com.gao.flink.datalake.utils.FlinkSQLRunnerBuilder.getPureSqlStatements;
 import static org.apache.calcite.avatica.util.Quoting.BACK_TICK;
 
 
