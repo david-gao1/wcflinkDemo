@@ -1,8 +1,8 @@
 package com.gao.flink.catalog;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.flink.connector.jdbc.catalog.AbstractJdbcCatalog;
-import org.apache.flink.connector.jdbc.catalog.PostgresCatalog;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.DataTypes;
 import org.apache.flink.table.api.EnvironmentSettings;
@@ -12,14 +12,15 @@ import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.table.api.constraints.UniqueConstraint;
 import org.apache.flink.table.catalog.*;
 import org.apache.flink.table.catalog.exceptions.CatalogException;
+import org.apache.flink.table.catalog.exceptions.DatabaseNotEmptyException;
 import org.apache.flink.table.catalog.exceptions.DatabaseNotExistException;
 import org.apache.flink.table.catalog.exceptions.TableNotExistException;
+import org.apache.flink.table.factories.FunctionDefinitionFactory;
+import org.apache.flink.table.factories.TableFactory;
 import org.apache.flink.table.types.DataType;
-import org.apache.flink.table.types.logical.DecimalType;
 import org.apache.flink.types.Row;
 import ru.yandex.clickhouse.domain.ClickHouseDataType;
 
-import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.*;
 
@@ -43,9 +44,9 @@ public class ClickHouseCatalog extends AbstractJdbcCatalog {
 
     public static void main(String[] args) throws DatabaseNotExistException, TableNotExistException {
         ClickHouseCatalog clickHouseCatalog = getClickHouseCatalog();
-//        runBasicApiFromCKCatalog(clickHouseCatalog);
+        runBasicApiFromCKCatalog(clickHouseCatalog);
 
-        getDatasFromCKCatalog();
+//        getDatasFromCKCatalog();
 
     }
 
@@ -60,21 +61,22 @@ public class ClickHouseCatalog extends AbstractJdbcCatalog {
     }
 
     private static void runBasicApiFromCKCatalog(ClickHouseCatalog clickHouseCatalog) throws DatabaseNotExistException, TableNotExistException {
+        //列出所有的数据库
         List<String> strings = clickHouseCatalog.listDatabases();
-        System.out.println(strings.toString());
+        //查看数据库是否存在
         boolean roman = clickHouseCatalog.databaseExists("roman");
-        System.out.println(roman);
+        //获取数据库
         CatalogDatabase roman1 = clickHouseCatalog.getDatabase("roman");
-        System.out.println(roman1.getProperties());//
+        //展示某一个数据库下所有的表
         List<String> roman2 = clickHouseCatalog.listTables("roman");
-        System.out.println(roman2.toString());
+        //获取某表下的schema信息。
         CatalogBaseTable roman3 = clickHouseCatalog.getTable(new ObjectPath("roman", "t_order_mt"));
         TableSchema schema = roman3.getSchema();
         String[] fieldNames = schema.getFieldNames();
         int length = fieldNames.length;
         for (int i = 0; length > i; i++) {
             Optional<DataType> fieldDataType = schema.getFieldDataType(fieldNames[i]);
-            System.out.println("tableFiled :" + fieldNames[i] + " fieldDataType is " + fieldDataType.get());
+            System.out.println("tableFiled :" + fieldNames[i] + " fieldDataType is " + fieldDataType.get().getLogicalType().getTypeRoot());
         }
     }
 
@@ -102,6 +104,16 @@ public class ClickHouseCatalog extends AbstractJdbcCatalog {
     }
 
     @Override
+    public Optional<TableFactory> getTableFactory() {
+        return super.getTableFactory();
+    }
+
+    @Override
+    public Optional<FunctionDefinitionFactory> getFunctionDefinitionFactory() {
+        return super.getFunctionDefinitionFactory();
+    }
+
+    @Override
     public List<String> listDatabases() throws CatalogException {
         List<String> ckDatabases = new ArrayList<>();
         try (Connection conn = DriverManager.getConnection(defaultUrl, username, pwd)) {
@@ -125,6 +137,11 @@ public class ClickHouseCatalog extends AbstractJdbcCatalog {
         } else {
             throw new DatabaseNotExistException(getName(), databaseName);
         }
+    }
+
+    @Override
+    public void dropDatabase(String name, boolean ignoreIfNotExists) throws DatabaseNotExistException, DatabaseNotEmptyException, CatalogException {
+        super.dropDatabase(name, ignoreIfNotExists);
     }
 
     /**
@@ -193,9 +210,33 @@ public class ClickHouseCatalog extends AbstractJdbcCatalog {
 
             //set pk
             //todo:1、ck的实现返回为空
-            DatabaseMetaData metaData = conn.getMetaData();
-            Optional<UniqueConstraint> primaryKey =
-                    getPrimaryKey(metaData, null, tablePath.getObjectName());
+            //DatabaseMetaData metaData = conn.getMetaData();
+            //UniqueConstraint.primaryKey()
+
+            //Connection conn1 = DriverManager.getConnection(dbUrl, username, pwd);
+            PreparedStatement ps1 =
+                    conn.prepareStatement("SELECT primary_key FROM system.tables where name = ?;");
+            ps1.setString(1, tablePath.getObjectName());
+            ResultSet rs = ps1.executeQuery();
+
+            Optional<UniqueConstraint> primaryKey;
+            String[] pknames = new String[0];
+            String pkName = "";
+            while (rs.next()) {
+                pkName = rs.getString(1);
+                pknames = pkName.split(",");
+            }
+
+            List<String> pkFields = Arrays.asList(pknames); // initialize size
+            if (CollectionUtils.isNotEmpty(pkFields)) {
+                primaryKey = Optional.of(UniqueConstraint.primaryKey(pkName, pkFields));
+            } else {
+                primaryKey = Optional.empty();
+            }
+            System.out.println("pkFields" + pkFields);
+
+//            Optional<UniqueConstraint> primaryKey =
+//                    getPrimaryKey(metaData, null, tablePath.getObjectName());
             primaryKey.ifPresent(
                     pk ->
                             tableBuilder.primaryKey(
@@ -269,8 +310,8 @@ public class ClickHouseCatalog extends AbstractJdbcCatalog {
     /**
      * Converts clickhouse type to Flink {@link DataType}.
      * todo:
-     *  拉取数据时，flink的类型要>=ck的数据类型
-     *  sink数据时，flink的类型要<=ck的数据类型？
+     * 拉取数据时，flink的类型要>=ck的数据类型
+     * sink数据时，flink的类型要<=ck的数据类型？
      * 所以类型要对应统一？
      *
      * @see ClickHouseDataType

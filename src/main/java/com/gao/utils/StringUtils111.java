@@ -12,8 +12,9 @@ import java.util.regex.Pattern;
  */
 public class StringUtils111 {
     public static void main(String[] args) {
-        int random = (int)(Math.random()*100);
-        System.out.println(random);
+        for (String s : "ckcatalog.sds.a819_23145".split("\\.")) {
+            System.out.println(s);
+        }
 
     }
 

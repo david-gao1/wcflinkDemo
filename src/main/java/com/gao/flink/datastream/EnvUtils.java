@@ -15,7 +15,7 @@ public class EnvUtils {
     /**
      * 001：怎样获取执行环境
      */
-    public StreamExecutionEnvironment getDataStreamEnv() {
+    public static StreamExecutionEnvironment getDataStreamEnv() {
         /**
          * 会根据实际情况去创建不同的执行环境，所以下面两种就不需要使用了
          *  1、本地运行

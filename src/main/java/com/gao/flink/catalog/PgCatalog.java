@@ -19,10 +19,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-
-import static com.gao.flink.datalake.utils.FlinkSQLRunnerBuilder.getPureSqlStatements;
-import static com.gao.flink.datalake.utils.FlinkSQLRunnerBuilder.getSqlStatementMap;
 
 /**
  * @Description 使用catalog基础点
@@ -98,12 +94,11 @@ public class PgCatalog {
      * @return
      */
     private static PostgresCatalog getPostgresCatalog() {
-        String catalogName = "mypg";//自定义名字？
+        String catalogName = "mypg";
         String defaultDatabase = "flinktest";
         String username = "postgres";
         String pwd = "11111111";
-        //baseUrl要求是不能带有数据库名的
-        String baseUrl = "jdbc:postgresql://localhost:5432/";
+        String baseUrl = "jdbc:postgresql://localhost:5432/";//baseUrl要求是不能带有数据库名的
         PostgresCatalog postgresCatalog = (PostgresCatalog) JdbcCatalogUtils.createCatalog(
                 catalogName,
                 defaultDatabase,
@@ -111,5 +106,21 @@ public class PgCatalog {
                 pwd,
                 baseUrl);
         return postgresCatalog;
+    }
+
+
+    private static void usePgCatalogs() throws DatabaseNotExistException, TableNotExistException {
+        PostgresCatalog postgresCatalog = getPostgresCatalog();
+        boolean flinktest = postgresCatalog.databaseExists("flinktest");
+        List<String> strings = postgresCatalog.listDatabases();
+        CatalogDatabase flinktest1 = postgresCatalog.getDatabase("flinktest");
+        List<String> flinktest2 = postgresCatalog.listTables("flinktest");
+
+        CatalogBaseTable table = postgresCatalog.getTable(new ObjectPath("flinktest", "department"));
+        TableSchema schema = table.getSchema();
+        String[] fieldNames = schema.getFieldNames();
+        for (int i = 0; fieldNames.length > i; i++) {
+            System.out.println(fieldNames[i] + "  " + schema.getFieldDataType(fieldNames[i]));
+        }
     }
 }
