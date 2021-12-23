@@ -36,7 +36,7 @@ public class JoinTemporalTableFunction {
 
         //sink 表
         tEnv.executeSql(" create table `sinkTale` " +
-                "( gender string ,`stringtime` bigint  ,`user_id` INTEGER   ," +
+                "( gender string ,`stringtime` bigint  ,`user_id` INTEGER ," +
                 " diversion_proc_time as  proctime() ) with " +
                 "('connector'='kafka-0.11','topic'='source-2'," +
                 "'properties.bootstrap.servers'= 'localhost:9092'," +

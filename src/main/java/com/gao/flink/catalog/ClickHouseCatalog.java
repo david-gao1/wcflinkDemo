@@ -1,25 +1,21 @@
 package com.gao.flink.catalog;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.connector.jdbc.catalog.AbstractJdbcCatalog;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.DataTypes;
-import org.apache.flink.table.api.EnvironmentSettings;
-import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.TableSchema;
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.table.api.constraints.UniqueConstraint;
 import org.apache.flink.table.catalog.*;
 import org.apache.flink.table.catalog.exceptions.CatalogException;
-import org.apache.flink.table.catalog.exceptions.DatabaseNotEmptyException;
 import org.apache.flink.table.catalog.exceptions.DatabaseNotExistException;
 import org.apache.flink.table.catalog.exceptions.TableNotExistException;
-import org.apache.flink.table.factories.FunctionDefinitionFactory;
-import org.apache.flink.table.factories.TableFactory;
 import org.apache.flink.table.types.DataType;
-import org.apache.flink.types.Row;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ru.yandex.clickhouse.BalancedClickhouseDataSource;
 import ru.yandex.clickhouse.domain.ClickHouseDataType;
+import ru.yandex.clickhouse.settings.ClickHouseProperties;
 
 import java.sql.*;
 import java.util.*;
@@ -34,93 +30,66 @@ import static org.apache.flink.table.factories.FactoryUtil.CONNECTOR;
  */
 public class ClickHouseCatalog extends AbstractJdbcCatalog {
 
-    /**
-     * 1、创造执行环境
-     */
-    public static StreamExecutionEnvironment streamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment();
-    public static EnvironmentSettings environmentSettings = EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
-    public static StreamTableEnvironment streamTableEnvironment = StreamTableEnvironment.create(streamExecutionEnvironment, environmentSettings);
+    public static Logger log = LoggerFactory.getLogger(ClickHouseCatalog.class);
+    private static final Set<String> builtinDatabases =
+            new HashSet<String>(Arrays.asList("system","_cw_distributed_db","_temporary_and_external_tables"));
 
+    private static ClickHouseCatalog clickHouseCatalog;
+    private static String ckCatalogName;
+    private static String ckDefaultDatabase;
+    private static String ckUsername;
+    private static String ckPwd;
+    private static String ckBaseUrl;
 
-    public static void main(String[] args) throws DatabaseNotExistException, TableNotExistException {
-        ClickHouseCatalog clickHouseCatalog = getClickHouseCatalog();
-        runBasicApiFromCKCatalog(clickHouseCatalog);
-
-//        getDatasFromCKCatalog();
-
-    }
-
-    private static void getDatasFromCKCatalog() {
-        ClickHouseCatalog clickHouseCatalog = getClickHouseCatalog();
-        streamTableEnvironment.registerCatalog(clickHouseCatalog.getName(), clickHouseCatalog);
-        //streamTableEnvironment.useCatalog(clickHouseCatalog.getName());
-
-        Table table = streamTableEnvironment.sqlQuery("select * from myCk.roman.t_order_mt");
-        ArrayList<Row> rows = Lists.newArrayList(table.execute().collect());
-        rows.forEach(System.out::println);
-    }
-
-    private static void runBasicApiFromCKCatalog(ClickHouseCatalog clickHouseCatalog) throws DatabaseNotExistException, TableNotExistException {
-        //列出所有的数据库
-        List<String> strings = clickHouseCatalog.listDatabases();
-        //查看数据库是否存在
-        boolean roman = clickHouseCatalog.databaseExists("roman");
-        //获取数据库
-        CatalogDatabase roman1 = clickHouseCatalog.getDatabase("roman");
-        //展示某一个数据库下所有的表
-        List<String> roman2 = clickHouseCatalog.listTables("roman");
-        //获取某表下的schema信息。
-        CatalogBaseTable roman3 = clickHouseCatalog.getTable(new ObjectPath("roman", "t_order_mt"));
-        TableSchema schema = roman3.getSchema();
-        String[] fieldNames = schema.getFieldNames();
-        int length = fieldNames.length;
-        for (int i = 0; length > i; i++) {
-            Optional<DataType> fieldDataType = schema.getFieldDataType(fieldNames[i]);
-            System.out.println("tableFiled :" + fieldNames[i] + " fieldDataType is " + fieldDataType.get().getLogicalType().getTypeRoot());
+    static {
+        try {
+            Class.forName("ru.yandex.clickhouse.ClickHouseDriver");
+        } catch (ClassNotFoundException e) {
+            log.error("load ClickHouseDriver result ClassNotFoundException");
         }
     }
 
-    private static ClickHouseCatalog getClickHouseCatalog() {
-        ClickHouseCatalog clickHouseCatalog = new ClickHouseCatalog("myCk",
-                "roman",
-                "default",
-                "Rootmaster@777"
-                , "jdbc:clickhouse://10.0.6.84:18100/");
+    private ClickHouseCatalog(String catalogName, String defaultDatabase, String username, String pwd, String baseUrl) {
+        super(catalogName, defaultDatabase, username, pwd, baseUrl);
+        ckCatalogName = catalogName;
+        ckDefaultDatabase = defaultDatabase;
+        ckUsername = username;
+        ckPwd = pwd;
+        ckBaseUrl = baseUrl;
+    }
+
+    public static synchronized ClickHouseCatalog getInstance(String catalogName,
+                                                             String defaultDatabase,
+                                                             String username, String pwd, String baseUrl) {
+        if (clickHouseCatalog == null || !(catalogName.equals(ckCatalogName) && defaultDatabase.equals(ckDefaultDatabase)
+                && username.equals(ckUsername) && pwd.equals(ckPwd) && baseUrl.equals(ckBaseUrl))) {
+            clickHouseCatalog = new ClickHouseCatalog(catalogName, defaultDatabase, username, pwd, baseUrl);
+        }
         return clickHouseCatalog;
     }
 
-
-    /**
-     * 符合父类的构造器
-     *
-     * @param catalogName
-     * @param defaultDatabase
-     * @param username
-     * @param pwd
-     * @param baseUrl
-     */
-    public ClickHouseCatalog(String catalogName, String defaultDatabase, String username, String pwd, String baseUrl) {
-        super(catalogName, defaultDatabase, username, pwd, baseUrl);
-    }
-
-    @Override
-    public Optional<TableFactory> getTableFactory() {
-        return super.getTableFactory();
-    }
-
-    @Override
-    public Optional<FunctionDefinitionFactory> getFunctionDefinitionFactory() {
-        return super.getFunctionDefinitionFactory();
+    public static Boolean hasCatalogInstance() {
+        return clickHouseCatalog != null;
     }
 
     @Override
     public List<String> listDatabases() throws CatalogException {
         List<String> ckDatabases = new ArrayList<>();
-        try (Connection conn = DriverManager.getConnection(defaultUrl, username, pwd)) {
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM system.databases;");
+        //支持clickhouse集群
+        ClickHouseProperties properties = new ClickHouseProperties();
+        properties.setUser(StringUtils.isBlank(username) ? null : username);
+        properties.setPassword(StringUtils.isBlank(pwd) ? null : pwd);
+        BalancedClickhouseDataSource dataSource;
+        dataSource = new BalancedClickhouseDataSource(defaultUrl, properties);
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement("SELECT * FROM system.databases;")) {
             ResultSet rs = ps.executeQuery();
+            //过滤默认的数据库
             while (rs.next()) {
-                ckDatabases.add(rs.getString(1));
+                String databaseName = rs.getString(1);
+                if (!builtinDatabases.contains(databaseName)) {
+                    ckDatabases.add(databaseName);
+                }
             }
             return ckDatabases;
         } catch (Exception e) {
@@ -132,16 +101,11 @@ public class ClickHouseCatalog extends AbstractJdbcCatalog {
     @Override
     public CatalogDatabase getDatabase(String databaseName) throws DatabaseNotExistException, CatalogException {
         if (listDatabases().contains(databaseName)) {
-            //todo:返回的是：database的属性值对+注释（null）
+            //返回的是：database的属性值对+注释（null）
             return new CatalogDatabaseImpl(Collections.emptyMap(), null);
         } else {
             throw new DatabaseNotExistException(getName(), databaseName);
         }
-    }
-
-    @Override
-    public void dropDatabase(String name, boolean ignoreIfNotExists) throws DatabaseNotExistException, DatabaseNotEmptyException, CatalogException {
-        super.dropDatabase(name, ignoreIfNotExists);
     }
 
     /**
@@ -157,10 +121,15 @@ public class ClickHouseCatalog extends AbstractJdbcCatalog {
         if (!databaseExists(databaseName)) {
             throw new DatabaseNotExistException(getName(), databaseName);
         }
-        //todo：通过指定数据库获取表列表？？？
         //baseUrl + databaseName
-        try (Connection conn = DriverManager.getConnection(baseUrl, username, pwd)) {
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM system.tables where database = ?;");
+        //支持clickhouse集群
+        ClickHouseProperties properties = new ClickHouseProperties();
+        properties.setUser(StringUtils.isBlank(username) ? null : username);
+        properties.setPassword(StringUtils.isBlank(pwd) ? null : pwd);
+        BalancedClickhouseDataSource dataSource = new BalancedClickhouseDataSource(defaultUrl, properties);
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement("SELECT * FROM system.tables where database = ?;")
+        ) {
             ps.setString(1, databaseName);
             ResultSet rs = ps.executeQuery();
 
@@ -191,16 +160,25 @@ public class ClickHouseCatalog extends AbstractJdbcCatalog {
             throw new TableNotExistException(getName(), tablePath);
         }
         String dbUrl = baseUrl + tablePath.getDatabaseName();
-        try (Connection conn = DriverManager.getConnection(dbUrl, username, pwd)) {
-            PreparedStatement ps =
-                    conn.prepareStatement(String.format("SELECT * FROM %s;", tablePath.getFullName()));
+
+        //支持clickhouse集群
+        ClickHouseProperties properties = new ClickHouseProperties();
+        properties.setUser(StringUtils.isBlank(username) ? null : username);
+        properties.setPassword(StringUtils.isBlank(pwd) ? null : pwd);
+        BalancedClickhouseDataSource dataSource = new BalancedClickhouseDataSource(defaultUrl, properties);
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps =
+                     conn.prepareStatement(String.format("SELECT * FROM %s;", tablePath.getFullName()));
+             PreparedStatement ps1 =
+                     conn.prepareStatement("SELECT primary_key FROM system.tables where database = ? and name = ?;")
+        ) {
             //set table Name and type(change to flink field type)
             ResultSetMetaData rsmd = ps.getMetaData();
             String[] names = new String[rsmd.getColumnCount()];
             DataType[] types = new DataType[rsmd.getColumnCount()];
             for (int i = 1; i <= rsmd.getColumnCount(); i++) {
                 names[i - 1] = rsmd.getColumnName(i);
-                //todo:类型转换
                 types[i - 1] = fromJDBCType(rsmd, i);
                 if (rsmd.isNullable(i) == ResultSetMetaData.columnNoNulls) {
                     types[i - 1] = types[i - 1].notNull();
@@ -209,14 +187,8 @@ public class ClickHouseCatalog extends AbstractJdbcCatalog {
             TableSchema.Builder tableBuilder = new TableSchema.Builder().fields(names, types);
 
             //set pk
-            //todo:1、ck的实现返回为空
-            //DatabaseMetaData metaData = conn.getMetaData();
-            //UniqueConstraint.primaryKey()
-
-            //Connection conn1 = DriverManager.getConnection(dbUrl, username, pwd);
-            PreparedStatement ps1 =
-                    conn.prepareStatement("SELECT primary_key FROM system.tables where name = ?;");
-            ps1.setString(1, tablePath.getObjectName());
+            ps1.setString(1, tablePath.getDatabaseName());
+            ps1.setString(2, tablePath.getObjectName());
             ResultSet rs = ps1.executeQuery();
 
             Optional<UniqueConstraint> primaryKey;
@@ -224,19 +196,24 @@ public class ClickHouseCatalog extends AbstractJdbcCatalog {
             String pkName = "";
             while (rs.next()) {
                 pkName = rs.getString(1);
-                pknames = pkName.split(",");
+                if (StringUtils.isNotEmpty(pkName)) {
+                    pknames = pkName.split(",");
+                }
             }
-
-            List<String> pkFields = Arrays.asList(pknames); // initialize size
-            if (CollectionUtils.isNotEmpty(pkFields)) {
-                primaryKey = Optional.of(UniqueConstraint.primaryKey(pkName, pkFields));
+            ArrayList<String> pkFieldsName = new ArrayList<>();
+            List<String> tableFiledNames = Arrays.asList(names);
+            for (String pkname : pknames) {
+                if (tableFiledNames.contains(pkname)) {
+                    pkFieldsName.add(pkname);
+                }
+            }
+//            List<String> pkFields = Arrays.asList(pknames); // initialize size
+            if (CollectionUtils.isNotEmpty(pkFieldsName)) {
+                primaryKey = Optional.of(UniqueConstraint.primaryKey(pkName, pkFieldsName));
             } else {
                 primaryKey = Optional.empty();
             }
-            System.out.println("pkFields" + pkFields);
-
-//            Optional<UniqueConstraint> primaryKey =
-//                    getPrimaryKey(metaData, null, tablePath.getObjectName());
+            //log.warn("[getTable] get pkFields {}", pkFields);
             primaryKey.ifPresent(
                     pk ->
                             tableBuilder.primaryKey(
@@ -270,7 +247,7 @@ public class ClickHouseCatalog extends AbstractJdbcCatalog {
 
 
     // clickhouse type:
-    //todo：有些类型没有转换完全
+    //todo：有些类型暂未支持
     public static final String INTERVALYEAR = "IntervalYear";
     public static final String INTERVALQUARTER = "IntervalQuarter";
     public static final String INTERVALMONTH = "IntervalMonth";
@@ -300,6 +277,7 @@ public class ClickHouseCatalog extends AbstractJdbcCatalog {
     public static final String UUID = "UUID";
     public static final String STRING = "String";
     public static final String FIXEDSTRING = "FixedString";
+    //不进行转换的类型
     public static final String NOTHING = "Nothing";
     public static final String NESTED = "Nested";
     public static final String TUPLE = "Tuple";
@@ -309,23 +287,19 @@ public class ClickHouseCatalog extends AbstractJdbcCatalog {
 
     /**
      * Converts clickhouse type to Flink {@link DataType}.
-     * todo:
-     * 拉取数据时，flink的类型要>=ck的数据类型
-     * sink数据时，flink的类型要<=ck的数据类型？
-     * 所以类型要对应统一？
      *
      * @see ClickHouseDataType
      */
     private DataType fromJDBCType(ResultSetMetaData metadata, int colIndex) throws SQLException {
-        String pgType = metadata.getColumnTypeName(colIndex);
-        if (pgType.contains("(")) {
-            pgType = pgType.substring(0, pgType.indexOf("("));
+        String ckType = metadata.getColumnTypeName(colIndex);
+        if (ckType.contains("(")) {
+            ckType = ckType.substring(0, ckType.indexOf("("));
         }
 
         int precision = metadata.getPrecision(colIndex);
         int scale = metadata.getScale(colIndex);
 
-        switch (pgType) {
+        switch (ckType) {
             case INTERVALYEAR:
             case INTERVALQUARTER:
             case INTERVALMONTH:
@@ -352,6 +326,8 @@ public class ClickHouseCatalog extends AbstractJdbcCatalog {
                 return DataTypes.TIMESTAMP();
             case ENUM8:
             case ENUM16:
+            case FIXEDSTRING:
+            case STRING:
                 return DataTypes.STRING();
             case FLOAT32:
                 return DataTypes.FLOAT();
@@ -365,18 +341,13 @@ public class ClickHouseCatalog extends AbstractJdbcCatalog {
                 return DataTypes.DECIMAL(38, 38);
             case DECIMAL:
                 return DataTypes.DECIMAL(precision, scale);
-            //todo:
-//            case UUID:
-//                return DataTypes.STRING();
-            case FIXEDSTRING:
-            case STRING:
+            case UUID:
                 return DataTypes.STRING();
-            //todo:flink的Array需要指定array的类型
-//            case ARRAY:
-//                return DataTypes.ARRAY();
             default:
-                throw new UnsupportedOperationException(
-                        String.format("Doesn't support Postgres type '%s' yet", pgType));
+                return DataTypes.STRING();
+//                throw new UnsupportedOperationException(
+//                        String.format("Doesn't support Postgres type '%s' yet", pgType));
+//
         }
     }
 

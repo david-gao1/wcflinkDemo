@@ -1,4 +1,4 @@
-package com.gao.flink.datalake;
+package com.gao.flink.datalake.pureSQL;
 
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;
@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.gao.flink.datalake.utils.FlinkSQLRunnerBuilder.getPureSqlStatements;
+import static com.gao.flink.datalake.pureSQL.utils.FlinkSQLRunnerBuilder.getPureSqlStatements;
 import static org.apache.calcite.avatica.util.Quoting.BACK_TICK;
 
 

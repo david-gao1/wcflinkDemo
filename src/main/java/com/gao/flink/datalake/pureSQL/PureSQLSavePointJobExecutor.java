@@ -1,16 +1,10 @@
-package com.gao.flink.datalake;
+package com.gao.flink.datalake.pureSQL;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.table.api.constraints.UniqueConstraint;
 import org.apache.flink.table.types.DataType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
 public class PureSQLSavePointJobExecutor {
     public static Logger log = LoggerFactory.getLogger(PureSQLSavePointJobExecutor.class);

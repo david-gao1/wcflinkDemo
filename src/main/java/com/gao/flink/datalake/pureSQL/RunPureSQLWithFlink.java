@@ -1,14 +1,12 @@
-package com.gao.flink.datalake;
+package com.gao.flink.datalake.pureSQL;
 
-import com.gao.flink.datalake.utils.FlinkSQLRunnerBuilder;
+import com.gao.flink.datalake.pureSQL.utils.FlinkSQLRunnerBuilder;
 import org.apache.flink.api.common.time.Time;
 import org.apache.flink.table.api.TableConfig;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
-import static com.gao.flink.datalake.utils.FlinkSQLRunnerBuilder.*;
+import static com.gao.flink.datalake.pureSQL.utils.FlinkSQLRunnerBuilder.*;
 
 /**
  * @Description TODO

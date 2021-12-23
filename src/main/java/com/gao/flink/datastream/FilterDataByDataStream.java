@@ -9,7 +9,7 @@ import org.apache.flink.api.common.functions.FilterFunction;
  * 1、加载类数据；2、通过java过滤年龄大于18的人。
  *
  */
-public class Example {
+public class FilterDataByDataStream {
 
     public static void main(String[] args) throws Exception {
         final StreamExecutionEnvironment env =

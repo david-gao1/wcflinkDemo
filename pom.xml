@@ -68,28 +68,11 @@
             <version>${flink.version}</version>
         </dependency>
 
-
-        <!--        <dependency>
-                    <groupId>org.apache.flink</groupId>
-                    <artifactId>flink-table-planner_${java.binary.version}</artifactId>
-                    <version>${flink.version}</version>
-                </dependency>-->
-        <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-table-planner -->
-        <!--        旧的planner-->
-        <!--        <dependency>-->
-        <!--            <groupId>org.apache.flink</groupId>-->
-        <!--            <artifactId>flink-table-planner_2.12</artifactId>-->
-        <!--            <version>1.11.2</version>-->
-        <!--        </dependency>-->
-
         <!-- 使用 自定义格式来解析 Kafka 数据，或者自定义函数       -->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-table-common</artifactId>
             <version>1.11.2</version>
-            <!--            <scope>provided</scope>-->
-            <!--             These dependencies are provided, because they should not be packaged into the JAR file.
-            后面我注释掉scope，就可以了-->
         </dependency>
 
 
@@ -150,26 +133,6 @@
         </dependency>
 
 
-        <!--  druid 的sql校验      -->
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>druid</artifactId>
-            <version>1.1.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-params</artifactId>
-            <version>5.7.0</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <version>RELEASE</version>
-            <scope>compile</scope>
-        </dependency>
-
         <!--使用catalog进行测试-->
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -188,6 +151,14 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.25</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.ververica</groupId>
+            <artifactId>flink-connector-mysql-cdc</artifactId>
+            <!-- the dependency is available only for stable releases. -->
+            <version>2.1.0</version>
         </dependency>
 
     </dependencies>

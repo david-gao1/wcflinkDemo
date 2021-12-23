@@ -25,7 +25,7 @@ import java.util.List;
  * @Author roman.gao
  * @Date 2021/8/18 10:09 上午
  */
-public class PgCatalog {
+public class UsePgCatalog {
     /**
      * 1、创造执行环境
      */

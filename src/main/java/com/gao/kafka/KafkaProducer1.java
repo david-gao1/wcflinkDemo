@@ -40,7 +40,7 @@ public class KafkaProducer1 {
             System.out.println(jsonString);
             //发送数据
             kafkaProducer.send(infos);
-            Thread.sleep(100);
+            Thread.sleep(1000);
         }
     }
 
@@ -50,10 +50,7 @@ public class KafkaProducer1 {
      */
     public static JSONObject getPgObejct() {
         JSONObject stuff = new JSONObject();
-        stuff.put("gender", "111");
-        stuff.put("stringtime", "sku_002");
-        int age = (int) (Math.random() * 5)+5 ;
-        stuff.put("user_id", age);
+        stuff.put("id", "111");
         return stuff;
     }
 

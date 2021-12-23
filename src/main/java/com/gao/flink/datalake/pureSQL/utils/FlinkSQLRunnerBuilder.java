@@ -1,4 +1,4 @@
-package com.gao.flink.datalake.utils;
+package com.gao.flink.datalake.pureSQL.utils;
 
 import com.gao.flink.datalake.udf.SubstringFunction;
 import org.apache.commons.lang3.StringUtils;
