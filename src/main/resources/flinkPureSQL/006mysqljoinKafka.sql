@@ -33,5 +33,8 @@ CREATE TABLE `single_message` (
   'lookup.cache.ttl' = '10MINUTE'
 );
 
-insert into gao_test_052203121 select `id` as `id`
-from gao_test_052203 join single_message on single_message.type=gao_test_052203.id;
+insert into
+SELECT o.order_id, o.total, c.country, c.zip
+FROM Orders AS o
+  JOIN Customers FOR SYSTEM_TIME AS OF o.proc_time AS c
+    ON o.customer_id = c.id;

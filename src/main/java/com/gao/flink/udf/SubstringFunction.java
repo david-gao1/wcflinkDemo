@@ -1,4 +1,4 @@
-package com.gao.flink.datalake.udf;
+package com.gao.flink.udf;
 
 import org.apache.flink.table.functions.ScalarFunction;
 

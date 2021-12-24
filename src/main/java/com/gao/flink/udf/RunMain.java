@@ -1,4 +1,4 @@
-package com.gao.flink.datalake.udf;
+package com.gao.flink.udf;
 
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
@@ -6,11 +6,7 @@ import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 
 import java.util.Arrays;
 
-/**
- * @Description TODO
- * @Author roman.gao
- * @Date 2021/7/11 10:50 上午
- */
+
 public class RunMain {
     /**
      * 1、创造执行环境
