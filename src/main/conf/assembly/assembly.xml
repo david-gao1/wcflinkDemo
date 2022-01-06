@@ -1,0 +1,48 @@
+<assembly
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3"
+        xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3 http://maven.apache.org/xsd/assembly-1.1.3.xsd">
+    <id>flink-run</id>
+    <formats>
+        <format>tar.gz</format><!--   打包类型     -->
+    </formats>
+    <baseDirectory>big-event</baseDirectory>
+    <includeBaseDirectory>true</includeBaseDirectory> <!--   todo：文件是否放在根目录下     -->
+
+
+    <!--  依赖包设置：打包为jar 注释则不打jar -->
+    <!--    <dependencySets>-->
+    <!--        <dependencySet>-->
+    <!--            <outputDirectory>lib</outputDirectory>-->
+    <!--            <unpack>false</unpack>-->
+    <!--        </dependencySet>-->
+    <!--    </dependencySets>-->
+
+    <!-- 文件夹放到指定位置  -->
+    <fileSets>
+        <fileSet>
+            <directory>src/main/conf/flinkSQL</directory>
+            <outputDirectory>conf/flinkSQL</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>src/main/conf/bin</directory>
+            <outputDirectory>bin</outputDirectory>
+            <fileMode>755</fileMode>
+        </fileSet>
+    </fileSets>
+
+    <!-- 执行脚本   -->
+    <files>
+        <!--        <file>-->
+        <!--            <source>bin/start.sh</source>-->
+        <!--            <outputDirectory>bin</outputDirectory>-->
+        <!--            <fileMode>755</fileMode>-->
+        <!--            <destName>datalakeComputeStart.sh</destName>-->
+        <!--        </file>-->
+        <file>
+            <source>target/original-flink-cdc-1.0-SNAPSHOT.jar</source>
+            <outputDirectory>./runjar/</outputDirectory>
+            <destName>flink-cdc-big-event.jar</destName>
+        </file>
+    </files>
+</assembly>
