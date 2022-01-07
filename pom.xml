@@ -9,6 +9,9 @@
     <!-- 如果要是由父 module 管理子 module，需要将父 module 的pom.xml 文件的<packaging>设置为 pom    -->
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
+    <modules>
+        <module>data-logger</module>
+    </modules>
 
 
 </project>
