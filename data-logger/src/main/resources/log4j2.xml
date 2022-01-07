@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- monitorInterval参数设置配置文件重新加载时间间隔 -->
+<configuration status="warn" monitorInterval="10" strict="true" schema="Log4J-V2.2.xsd"
+               packages="com.zero.scribe.log4j2plugin">
+    <Properties>
+        <property name="LOG_HOME" value="/Users/lianggao/MyWorkSpace/001project/wcflinkDemo/data-logger/logs"/>
+        <Property name="MODULE_NAME" value="data-logger"/>
+        <Property name="PATTERN" value="%-d{yyyy-MM-dd HH:mm:ss.SSS}|%-6p|%pid|%t|%l|%m%n"/>
+        <property name="LEVEL">debug</property>
+    </Properties>
+
+    <Appenders>
+        <!--   控制台的配置   -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${PATTERN}"/>
+        </Console>
+
+        <RollingFile name="dataLogger" immediateFlush="true" fileName="${LOG_HOME}/${MODULE_NAME}.info.log"
+                     filePattern="${LOG_HOME}/${MODULE_NAME}.%d{yyyyMMdd}.%i.log.gz">
+            <PatternLayout pattern="${PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="100MB"/>
+            </Policies>
+            <Filters>
+                <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+
+        </RollingFile>
+
+
+    </Appenders>
+
+    <Loggers>
+        <root level="info">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="dataLogger"/>
+        </root>
+
+        <!--  LoggerController类下的日志只输出到 dataLogger Appender中  -->
+        <logger name="com.gao.controller.LoggerController" level="info" additivity="false">
+            <!--            <AppenderRef ref="Console"/>-->
+            <AppenderRef ref="dataLogger"/>
+        </logger>
+
+    </Loggers>
+
+</configuration>

@@ -1,5 +1,6 @@
 package com.gao;
 
+import org.apache.log4j.Logger;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -11,7 +12,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @SpringBootApplication
 public class DataLoggerApplication {
+    static Logger logger = Logger.getLogger(DataLoggerApplication.class);
+
     public static void main(String[] args) {
-        SpringApplication.run(DataLoggerApplication.class,args);
+
+        logger.info("start...............");
+        SpringApplication.run(DataLoggerApplication.class, args);
     }
 }
