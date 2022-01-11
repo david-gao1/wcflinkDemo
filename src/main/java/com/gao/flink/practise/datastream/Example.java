@@ -1,4 +1,4 @@
-package com.gao.flink.datastream;
+package com.gao.flink.practise.datastream;
 
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.datastream.DataStream;

@@ -68,20 +68,6 @@
             <version>${flink.version}</version>
         </dependency>
 
-
-        <!--        <dependency>
-                    <groupId>org.apache.flink</groupId>
-                    <artifactId>flink-table-planner_${java.binary.version}</artifactId>
-                    <version>${flink.version}</version>
-                </dependency>-->
-        <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-table-planner -->
-        <!--        旧的planner-->
-        <!--        <dependency>-->
-        <!--            <groupId>org.apache.flink</groupId>-->
-        <!--            <artifactId>flink-table-planner_2.12</artifactId>-->
-        <!--            <version>1.11.2</version>-->
-        <!--        </dependency>-->
-
         <!-- 使用 自定义格式来解析 Kafka 数据，或者自定义函数       -->
         <dependency>
             <groupId>org.apache.flink</groupId>

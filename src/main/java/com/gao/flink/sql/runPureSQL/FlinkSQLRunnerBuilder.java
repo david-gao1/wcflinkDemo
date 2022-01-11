@@ -1,9 +1,8 @@
-package com.gao.flink.datalake.utils;
+package com.gao.flink.sql.runPureSQL;
 
-import com.gao.flink.datalake.udf.SubstringFunction;
+import com.gao.flink.sql.udf.FormDataFieldsFlattenExtFunction;
+import com.gao.flink.sql.udf.TimeStampTo13;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.flink.connector.jdbc.catalog.JdbcCatalogUtils;
-import org.apache.flink.connector.jdbc.catalog.PostgresCatalog;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.StatementSet;
@@ -16,8 +15,10 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static java.lang.System.*;
+
 /**
- * @Description TODO
+ * @Description 运行flink纯sql
  * @Author roman.gao
  * @Date 2021/8/22 3:27 下午
  */
@@ -37,8 +38,6 @@ public class FlinkSQLRunnerBuilder {
      * @throws IOException
      */
     public static String runFlinkSQL() throws IOException {
-        PostgresCatalog postgresCatalog = getPostgresCatalog();
-        streamTableEnvironment.registerCatalog("mypg", postgresCatalog);
         //2、获取sql数组
         String[] sqlStatements = getPureSqlStatements();
 
@@ -46,8 +45,7 @@ public class FlinkSQLRunnerBuilder {
         Map<String, List<String>> sqlStatementMap = getSqlStatementMap(sqlStatements);
 
         //4、执行flink sql
-        String flinkJobId = executeSQLs(sqlStatementMap);
-        return flinkJobId;
+        return executeSQLs(sqlStatementMap);
     }
 
     /**
@@ -57,16 +55,9 @@ public class FlinkSQLRunnerBuilder {
      * @throws IOException
      */
     public static String[] getPureSqlStatements() throws IOException {
-        //FileReader fr = new FileReader("/Users/lianggao/MyWorkSpace/001project/wcflinkDemo/src/main/resources/001basic.SQL");
-        //FileReader fr = new FileReader("/Users/lianggao/MyWorkSpace/001project/wcflinkDemo/src/main/resources/002window.sql");
-        //FileReader fr = new FileReader("/Users/lianggao/MyWorkSpace/001project/wcflinkDemo/src/main/resources/003windowMutiSql.sql");
-        //FileReader fr = new FileReader("/Users/lianggao/MyWorkSpace/001project/wcflinkDemo/src/main/resources/0042kafkajoin.sql");
-        //FileReader fr = new FileReader("/Users/lianggao/MyWorkSpace/001project/wcflinkDemo/src/main/resources/0041kafkajoin.sql");
-//        FileReader fr = new FileReader("/Users/lianggao/MyWorkSpace/001project/wcflinkDemo/src/main/resources/005UDF.sql");
-//        FileReader fr = new FileReader("/Users/lianggao/MyWorkSpace/001project/wcflinkDemo/src/main/resources/flinkPureSQL/clickhouse/001kafkaToClickhouse.sql");
-        FileReader fr = new FileReader("/Users/lianggao/MyWorkSpace/001project/wcflinkDemo/src/main/resources/flinkPureSQL/catalog/002pgSinkKafka.SQL");
 
-        //002pgSinkKafka.SQL
+        FileReader fr = new FileReader("src/main/resources/flinkPureSQL/005UDF.sql");
+
         BufferedReader br = new BufferedReader(fr);
         String line = "";
         StringBuilder stringBuilder = new StringBuilder();
@@ -76,8 +67,21 @@ public class FlinkSQLRunnerBuilder {
         br.close();
         fr.close();
         String[] split = stringBuilder.toString().split(";");
-        //System.out.println(Arrays.toString(split));
         return split;
+    }
+
+    /**
+     * 注册udf
+     */
+    private static void registerUDF() {
+        streamTableEnvironment.createTemporarySystemFunction("to13mills", TimeStampTo13.class);
+        streamTableEnvironment.createTemporarySystemFunction("FlattenExt", FormDataFieldsFlattenExtFunction.class);
+/*        streamTableEnvironment.executeSql(
+                String.format("create temporary function substrtest as '%s'",
+                        "com.gao.flink.sql.udf.udf.SubstringFunction"));*/
+
+        String[] strings = streamTableEnvironment.listUserDefinedFunctions();
+        out.println("[listUserDefinedFunctions] is " + Arrays.toString(strings));
     }
 
 
@@ -123,53 +127,24 @@ public class FlinkSQLRunnerBuilder {
      * @return
      */
     public static String executeSQLs(Map<String, List<String>> sqlTypeAndSqlStatementMap) {
-        //streamTableEnvironment.createTemporarySystemFunction("substrtest", new SubstringFuncation());
-        //streamTableEnvironment.executeSql("create temporary function substrtest as  `com.gao.flink.datalake.udf.SubstringFuncation`");
-        //streamTableEnvironment.createTemporarySystemFunction("substrtest", SubstringFuncation.class);
-        streamTableEnvironment.createTemporarySystemFunction("SubstringFunction", SubstringFunction.class);
-//        streamTableEnvironment.executeSql(
-//                String.format("create temporary function substrtest as '%s'",
-//                        "com.gao.flink.datalake.udf.SubstringFunction"));
-        String[] strings = streamTableEnvironment.listUserDefinedFunctions();
-        System.out.println("[listUserDefinedFunctions] is{}" + Arrays.toString(strings));
+        registerUDF();
         StatementSet statementSet = streamTableEnvironment.createStatementSet();
         for (String ddlStatement : sqlTypeAndSqlStatementMap.get("DDL")) {
-            System.out.println("[executeSQLs] ddlStatement is {}" + ddlStatement);
+            out.println("[executeSQLs] ddlStatement is {}" + ddlStatement);
             streamTableEnvironment.executeSql(ddlStatement);
         }
         for (String dmlStatement : sqlTypeAndSqlStatementMap.get("DML")) {
-            System.out.println("[executeSQLs] dmlStatement is {}" + dmlStatement);
+            out.println("[executeSQLs] dmlStatement is {}" + dmlStatement);
             statementSet.addInsertSql(dmlStatement);
         }
         for (String select : sqlTypeAndSqlStatementMap.get("SELECT")) {
-            System.out.println("[executeSQLs] SELECTStatement is {}" + select);
+            out.println("[executeSQLs] SELECTStatement is {}" + select);
             streamTableEnvironment.sqlQuery(select);
         }
         TableResult executeResult = statementSet.execute();
-        String jobId = executeResult.getJobClient().get().getJobID().toString();
 
-        return jobId;
+        return executeResult.getJobClient().get().getJobID().toString();
     }
 
 
-    /**
-     * 创建catalog
-     *
-     * @return
-     */
-    private static PostgresCatalog getPostgresCatalog() {
-        String catalogName = "mypg";//自定义名字？
-        String defaultDatabase = "flinktest";
-        String username = "postgres";
-        String pwd = "11111111";
-        //baseUrl要求是不能带有数据库名的
-        String baseUrl = "jdbc:postgresql://localhost:5432/";
-        PostgresCatalog postgresCatalog = (PostgresCatalog) JdbcCatalogUtils.createCatalog(
-                catalogName,
-                defaultDatabase,
-                username,
-                pwd,
-                baseUrl);
-        return postgresCatalog;
-    }
 }

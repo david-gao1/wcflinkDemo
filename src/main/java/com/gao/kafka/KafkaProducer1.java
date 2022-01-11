@@ -22,8 +22,6 @@ public class KafkaProducer1 {
         //参数配置：
         Properties props = new Properties();
         //server列表
-        //props.put("bootstrap.servers", "localhost:9092");
-        //10.0.12.159:18108,10.0.12.160:18108,10.0.12.161:18108
         props.put("bootstrap.servers", "localhost:9092");
         //key，value支持序列化
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
@@ -34,7 +32,7 @@ public class KafkaProducer1 {
         String topic1 = "source-1";
         while (true) {
             //将对象转为json数据
-            String jsonString = JSONObject.toJSONString(getPgObejct(), SerializerFeature.WriteMapNullValue);
+            String jsonString = JSONObject.toJSONString(getObject(), SerializerFeature.WriteMapNullValue);
             //生成数据
             ProducerRecord<String, String> infos = new ProducerRecord<String, String>(topic1, jsonString);
             System.out.println(jsonString);
@@ -46,65 +44,15 @@ public class KafkaProducer1 {
 
 
     /**
+     * 简单的数据
+     *
      * @return
      */
-    public static JSONObject getPgObejct() {
+    public static JSONObject getObject() {
         JSONObject stuff = new JSONObject();
-        stuff.put("gender", "111");
-        stuff.put("stringtime", "sku_002");
-        int age = (int) (Math.random() * 5)+5 ;
+        stuff.put("str", "hello 1111111");
+        int age = (int) (Math.random() * 5) + 5;
         stuff.put("user_id", age);
-        return stuff;
-    }
-
-    /**
-     * 嵌套格式的对象json
-     */
-    public static JSONObject getZhangSanJson() {
-        //JSONObject jsonObjectResult = new JSONObject();//用于存储数据
-        long timeInMillis = Calendar.getInstance().getTimeInMillis();
-
-        JSONObject stuff = new JSONObject();
-        //int i = new Random().nextInt();
-        stuff.put("d_id", 1);
-        JSONObject depart = new JSONObject();
-        depart.put("d_id", 2);
-        depart.put("d_name", "技术一部");
-        stuff.put("department", depart);
-        return stuff;
-    }
-
-
-    /**
-     * 嵌套格式的对象json
-     */
-    public static JSONObject getidAndName() {
-        JSONObject stuff = new JSONObject();
-        int age = (int) (Math.random() * 1000) + 200;
-        stuff.put("id", age);
-        stuff.put("deptname", "aa\\r\\f\\n\\\\\\\\\\\\");
-        stuff.put("emp_id", 1);
-        return stuff;
-    }
-
-
-    //  `ID`  INTEGER,
-    //  `BUSINESS_TYPE`  STRING,
-    //  `OCCUR_DATE`  STRING,
-    //  `CUSTOMER_ID`  INTEGER,
-    //  `BUSINESS_TYPE`  INTEGER,
-    //  `CREATE_DATE`  DATE,
-    //  `UPDATE_DATE`  DATE
-    public static JSONObject getCDC() {
-        JSONObject stuff = new JSONObject();
-        int age = (int) (Math.random() * 10) + 1;
-        stuff.put("ID", age);
-        stuff.put("OCCUR_DATE", new Date());
-        stuff.put("CUSTOMER_ID", (int) (Math.random() * 10) + 1 + (int) (Math.random() * 10) + 1);
-        stuff.put("BUSINESS_TYPE", (int) (Math.random() * 10) + 1 + (int) (Math.random() * 10) + 2);
-        stuff.put("BUSINESS_SUM", (int) (Math.random() * 10) + 1 + (int) (Math.random() * 10) + 2);
-        stuff.put("CREATE_DATE", new Date());
-        stuff.put("UPDATE_DATE", new Date());
         return stuff;
     }
 

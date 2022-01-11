@@ -1,4 +1,4 @@
-package com.gao.flink.datastream;
+package com.gao.flink.practise.datastream;
 
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.core.execution.JobClient;
