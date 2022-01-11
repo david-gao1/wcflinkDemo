@@ -1,0 +1,10 @@
+*.iml
+product/
+target/
+.idea/*
+.settings/
+.project
+.classpath
+*/bin/
+.factorypath
+*/*/logs
