@@ -1,7 +1,8 @@
 CREATE TABLE `gao_sink` (
   str String NOT NULL,
   newWord String,
-  newLength int
+  newLength int,
+  proc_time bigint
 ) WITH (
   'connector' = 'kafka-0.11',
   'topic' = 'topic_gao-out',
@@ -24,6 +25,6 @@ CREATE TABLE `gao_source` (
 );
 
 
-insert into gao_sink select str,newWord,newLength  from gao_source
+insert into gao_sink select str,newWord,newLength,to13mills(proc_time) as proc_time  from gao_source
  LEFT JOIN LATERAL TABLE(FlattenExt(str,'newWord string,newLength int')) AS T(newWord, newLength) ON TRUE;
 
