@@ -1,4 +1,4 @@
-package com.gao.flink.datalake.utils;
+package com.gao.flink.sql.utils;
 
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLStatement;

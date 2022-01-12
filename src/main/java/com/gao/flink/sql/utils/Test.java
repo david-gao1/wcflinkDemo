@@ -1,4 +1,4 @@
-package com.gao.flink.datalake.utils;
+package com.gao.flink.sql.utils;
 
 
 import java.util.UUID;
