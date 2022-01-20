@@ -1,4 +1,4 @@
-package com.gao.flink.datalake.join;
+package com.gao.flink.sql.join;
 
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
